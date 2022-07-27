@@ -326,7 +326,7 @@ final class StoreTests: XCTestCase {
           return .none
         } else {
           return Effect(value: true)
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .eraseToEffect()
         }
       },
@@ -350,5 +350,47 @@ final class StoreTests: XCTestCase {
       XCTAssertEqual(vs.state, 3)
     }
     .disposed(by: disposeBag)
+  }
+
+  func testActionQueuing() {
+    let subject = PublishSubject<Void>()
+
+    enum Action: Equatable {
+      case incrementTapped
+      case `init`
+      case doIncrement
+    }
+
+    let store = TestStore(
+      initialState: 0,
+      reducer: Reducer<Int, Action, Void> { state, action, _ in
+        switch action {
+        case .incrementTapped:
+          subject.onNext(())
+          return .none
+
+        case .`init`:
+          return subject.map { .doIncrement }.eraseToEffect()
+
+        case .doIncrement:
+          state += 1
+          return .none
+        }
+      },
+      environment: ()
+    )
+
+    store.assert(
+      .send(.`init`),
+      .send(.incrementTapped),
+      .receive(.doIncrement) {
+        $0 = 1
+      },
+      .send(.incrementTapped),
+      .receive(.doIncrement) {
+        $0 = 2
+      },
+      .do { subject.onCompleted() }
+    )
   }
 }
