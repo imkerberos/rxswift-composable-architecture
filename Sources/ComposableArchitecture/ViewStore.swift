@@ -43,11 +43,28 @@ import RxSwift
 ///
 @dynamicMemberLookup
 public final class ViewStore<State, Action> {
-
+  private struct ActionObserver: ObserverType {
+    typealias Element = Action
+    let send: (Action) -> Void
+    func on(_ event: Event<Action>) {
+      switch event {
+      case let .next(action):
+        self.send(action)
+      case .completed:
+        break
+      case .error(_):
+        break
+      }
+    }
+  }
   /// A publisher of state.
   public let publisher: StorePublisher<State>
   private var viewDisposable: Disposable?
-
+  /// A observer of action
+  private let _actions: ActionObserver
+  public var actions: AnyObserver<Action> {
+    self._actions.asObserver()
+  }
   deinit {
     viewDisposable?.dispose()
   }
@@ -66,6 +83,7 @@ public final class ViewStore<State, Action> {
     self.publisher = StorePublisher(publisher)
     self.stateRelay = BehaviorRelay(value: store.state)
     self._send = store.send
+    self._actions = ActionObserver(send: store.send)
     self.viewDisposable = publisher.subscribe(onNext: { [weak self] in self?.state = $0 })
   }
 
