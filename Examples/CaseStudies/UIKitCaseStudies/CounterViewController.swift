@@ -44,14 +44,14 @@ final class CounterViewController: UIViewController {
     self.view.backgroundColor = .white
 
     let decrementButton = UIButton(type: .system)
-    decrementButton.addTarget(self, action: #selector(decrementButtonTapped), for: .touchUpInside)
+//    decrementButton.addTarget(self, action: #selector(decrementButtonTapped), for: .touchUpInside)
     decrementButton.setTitle("−", for: .normal)
 
     let countLabel = UILabel()
     countLabel.font = .monospacedDigitSystemFont(ofSize: 17, weight: .regular)
 
     let incrementButton = UIButton(type: .system)
-    incrementButton.addTarget(self, action: #selector(incrementButtonTapped), for: .touchUpInside)
+//    incrementButton.addTarget(self, action: #selector(incrementButtonTapped), for: .touchUpInside)
     incrementButton.setTitle("+", for: .normal)
 
     let rootStackView = UIStackView(arrangedSubviews: [
@@ -71,16 +71,24 @@ final class CounterViewController: UIViewController {
       .map { "\($0.count)" }
       .bind(to: countLabel.rx.text)
       .disposed(by: disposeBag)
+      
+      decrementButton.rx.tap.map {CounterAction.decrementButtonTapped}
+          .bind(to: self.viewStore.actions)
+          .disposed(by: disposeBag)
+      
+      incrementButton.rx.tap.map { CounterAction.incrementButtonTapped}
+          .bind(to: self.viewStore.actions)
+          .disposed(by: disposeBag)
 
 //      .assign(to: \.text, on: countLabel)
 //      .store(in: &self.cancellables)
   }
 
-  @objc func decrementButtonTapped() {
-    self.viewStore.send(.decrementButtonTapped)
-  }
-
-  @objc func incrementButtonTapped() {
-    self.viewStore.send(.incrementButtonTapped)
-  }
+//  @objc func decrementButtonTapped() {
+//    self.viewStore.send(.decrementButtonTapped)
+//  }
+//
+//  @objc func incrementButtonTapped() {
+//    self.viewStore.send(.incrementButtonTapped)
+//  }
 }

@@ -562,10 +562,10 @@
 		};
 		78BC6CAA24D9BD200061AB2D /* XCRemoteSwiftPackageReference "rxswift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/dannyhertz/rxswift-composable-architecture.git";
+			repositoryURL = "https://github.com/imkerberos/rxswift-composable-architecture.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.0;
+				minimumVersion = 0.9.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
